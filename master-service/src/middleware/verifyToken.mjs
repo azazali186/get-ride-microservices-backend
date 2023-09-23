@@ -27,17 +27,21 @@ export const verifyTokenAndAuthorization = (req, res, next) => {
         name = name.slice(0, -1);
       }
 
+      const id = req.params.id ? '/:id' : ''
+
+      let path = req.baseUrl.endsWith('/') ? req.baseUrl.slice(0, -1) : req.baseUrl;
+
       const reqData = {
-        userId: req.userId,
-        route: name,
+        userId: req.user.id,
+        route: path + id ,
         token: req.headers.authorization.split(" ")[1]
       }
 
-      granted = requestAuthentication(reqData)
+      granted = JSON.parse(await requestAuthentication(reqData))
 
     }
 
-    if (req.user.id === req.params.id || req.user.role == 'admin' || granted) {
+    if (req.user.id === req.params.id || req.user.role == 'admin' || granted?.isAuthenticated ) {
       next();
     } else {
       res.status(403).json({

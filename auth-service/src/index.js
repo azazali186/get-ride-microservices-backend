@@ -20,8 +20,6 @@ app.use(express.urlencoded({ extended: true }));
 import sequelize from "./config/sequelize.mjs"
 sequelize.sync();
 
-rabbitMQListener();
-
 User.belongsTo(Role, { foreignKey: 'roleId' });
 
 Role.hasMany(User, { foreignKey: 'roleId' });
@@ -55,9 +53,9 @@ app.use("/api/users", usersRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);
+await inserData(expressListRoutes, app);
 
-inserData(expressListRoutes, app);
-
+rabbitMQListener();
 app.listen(process.env.PORT || 5100, function () {
   console.log(
     "CORS-enabled web server listening on port ",

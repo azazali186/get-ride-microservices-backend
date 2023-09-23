@@ -42,6 +42,7 @@ const storePermissions = async (permissions, service) => {
   await Permissions.destroy({
     where: { path: { [Op.notIn]: allRoutesPath }, service: service },
   });
+
 };
 
 export const listenForPermissions = async () => {
@@ -56,7 +57,6 @@ export const listenForPermissions = async () => {
   const q = await channel.assertQueue(queueName, { exclusive: false });
 
   channel.bindQueue(q.queue, exchange, routingKey);
-  console.log("permissionsExchange");
 
   channel.consume(
     q.queue,
@@ -64,7 +64,6 @@ export const listenForPermissions = async () => {
       const data = JSON.parse(msg.content.toString());
       const permissions = data.permissions;
       const service = data.service;
-      console.log("\n\n\n\n\n\n\n data: ", data);
 
       await storePermissions(permissions, service);
       await getRoleData();

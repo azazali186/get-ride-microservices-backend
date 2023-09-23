@@ -1,4 +1,4 @@
-import amqp from "amqplib";
+import { connect } from "amqplib";
 import Role from "../models/roles.mjs";
 import User from "../models/user.mjs";
 import Permission from "../models/permissions.mjs";
@@ -6,71 +6,64 @@ import Permission from "../models/permissions.mjs";
 const authenticateUser = async (userData) => {
   let granted = false;
 
-  const user = await User.findOne({
+  let user = await User.findOne({
     where: { id: userData.userId },
     include: [
       {
         model: Role,
+        attributes: ["id", "name", "isActive"],
         include: [
           {
             model: Permission,
+            attributes: ["id", "path", "name", "service"],
+            through: { attributes: [] },
           },
         ],
       },
     ],
   });
 
-  console.log("user ", user);
-  let role = user?.role;
-  let permissions = role?.permissions;
+  let role = user?.dataValues.Role;
+  let permissions = role?.dataValues.Permissions;
 
-  let name = userData.route
+  let path = userData.route;
 
-  if (name.endsWith("-")) {
-    name = name.slice(0, -1);
+  if (path.endsWith("-")) {
+    path = path.slice(0, -1);
   }
-  permissions.map((p) => {
-    if (name == p.name) {
-      granted = true;
-    }
+  const havingPerm = [];
+  permissions?.map((p) => {
+    havingPerm.push(p.dataValues.path);
   });
 
+  granted = havingPerm.includes(path);
   return granted;
 };
 
 export const listenForAuthRequests = async () => {
-  const connection = await amqp.connect("amqp://localhost");
+  const connection = await connect("amqp://localhost");
   const channel = await connection.createChannel();
 
-  const exchange = "authExchange";
-  const queueName = "authQueue";
-  const requestRoutingKey = "requestAuth";
-  const responseRoutingKey = "responseAuth";
+  await channel.assertQueue("auth_service_queue");
 
-  await channel.assertExchange(exchange, "direct", { durable: false });
-  const q = await channel.assertQueue(queueName, { exclusive: false });
+  channel.consume("auth_service_queue", async (msg) => {
+    const userData = JSON.parse(msg.content.toString());
 
-  channel.bindQueue(q.queue, exchange, requestRoutingKey);
-  console.log(" authExchange ");
+    const isAuthenticated = await authenticateUser(userData);
 
-  channel.consume(
-    q.queue,
-    (msg) => {
-      const userData = JSON.parse(msg.content.toString());
+    channel.sendToQueue(
+      msg.properties.replyTo,
+      Buffer.from(
+        JSON.stringify({
+          userId: userData.userId,
+          isAuthenticated,
+        })
+      ),
+      {
+        correlationId: msg.properties.correlationId,
+      }
+    );
 
-      const isAuthenticated = authenticateUser(userData);
-
-      channel.publish(
-        exchange,
-        responseRoutingKey,
-        Buffer.from(
-          JSON.stringify({
-            userId: userData.userId,
-            isAuthenticated,
-          })
-        )
-      );
-    },
-    { noAck: true }
-  );
+    channel.ack(msg);
+  });
 };

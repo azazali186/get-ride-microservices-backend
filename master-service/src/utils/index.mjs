@@ -22,7 +22,7 @@ export const getMethodName = (key) => {
     }
 }
 
-const getPermissionsData = (expressListRoutes, app) => {
+const  getPermissionsData = async (expressListRoutes, app) => {
     const allRoutes = expressListRoutes(app);
     allRoutes.forEach(async (routeData) => {
         let name = (getMethodName(routeData.method) + routeData.path.split(':')[0].replaceAll('/', '-')).toLowerCase();
@@ -41,12 +41,9 @@ const getPermissionsData = (expressListRoutes, app) => {
     });
 };
 
-
-
-
 export const inserData = async (expressListRoutes, app) => {
-    getPermissionsData(expressListRoutes, app)
-    sendPermissionsToAuthServer()
+    await getPermissionsData(expressListRoutes, app)
+    await sendPermissionsToAuthServer()
 }
 
 export default { getMethodName ,inserData }

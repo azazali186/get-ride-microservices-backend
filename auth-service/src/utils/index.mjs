@@ -91,7 +91,7 @@ const getPermissionsData = async (expressListRoutes, app) => {
   if (permissionsToAdd.length > 0) {
     await Permissions.bulkCreate(permissionsToAdd);
   }
-  await Permissions.destroy({ where: { path: { [Op.notIn]: allRoutesPath } } });
+  await Permissions.destroy({ where: { path: { [Op.notIn]: allRoutesPath }, service: 'auth-service' } });
 };
 
 export const inserData = async (expressListRoutes, app) => {

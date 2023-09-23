@@ -48,9 +48,9 @@ app.use("/api/currencies", currenciesRoutes);
 
 inserData(expressListRoutes, app);
 
-app.listen(process.env.PORT || 5100, function () {
+app.listen(process.env.PORT || 5110, function () {
   console.log(
     "CORS-enabled web server listening on port ",
-    process.env.PORT || 5100
+    process.env.PORT || 5110
   );
 });

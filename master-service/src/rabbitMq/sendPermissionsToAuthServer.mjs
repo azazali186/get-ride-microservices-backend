@@ -2,7 +2,9 @@ import amqp from "amqplib";
 import Permission from "../models/permissions.mjs";
 
 export const sendPermissionsToAuthServer = async () => {
+
   const permissions = await Permission.findAll();
+
   const connection = await amqp.connect("amqp://localhost");
   const channel = await connection.createChannel();
 
@@ -17,8 +19,6 @@ export const sendPermissionsToAuthServer = async () => {
       JSON.stringify({ permissions: permissions, service: "master-service" })
     )
   );
-
-  console.log("Sent permissions to auth server.");
 
   setTimeout(() => {
     connection.close();
