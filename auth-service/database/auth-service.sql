@@ -9,7 +9,7 @@ CREATE TABLE permissions (
     id UUID PRIMARY KEY,
     path VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    guard VARCHAR(255) DEFAULT 'web',
+    guard VARCHAR(255) DEFAULT web,
     createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updatedAt TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -24,9 +24,9 @@ CREATE TABLE users (
     updatedAt TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE TABLE rolePermissions (
-    'RoleId' UUID REFERENCES roles(id),
-    'PermissionId' UUID REFERENCES permissions(id),
-    'createdAt' TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    'updatedAt' TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    PRIMARY KEY('RoleId', 'PermissionId')
+    RoleId UUID REFERENCES roles(id),
+    PermissionId UUID REFERENCES permissions(id),
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY(RoleId, PermissionId)
 );

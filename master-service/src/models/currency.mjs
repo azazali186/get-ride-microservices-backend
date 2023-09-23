@@ -1,32 +1,28 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/sequelize.mjs';
+import sequelize from '../config/sequelize.mjs'; // Assuming you have a Sequelize config in a similar location
 import { v4 as uuidv4 } from 'uuid';
 
-class Permission extends Model {}
+class Currency extends Model {}
 
-Permission.init({
+Currency.init({
   id: {
     type: DataTypes.STRING,
     primaryKey: true,
     defaultValue: () => uuidv4().replace(/-/g, '')
   },
-  path: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    unique: true
   },
-  guard: {
+  code: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'web'
+    unique: true
   },
-  service: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: 'auth-service'
+  status: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   },
   createdAt: {
     allowNull: false,
@@ -38,11 +34,11 @@ Permission.init({
   }
 }, {
   sequelize,
-  modelName: 'Permission',
-  tableName: 'permissions',
+  modelName: 'Currency',
+  tableName: 'currencies',
   timestamps: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  createdAt: 'createdAt', // Default, but included for clarity
+  updatedAt: 'updatedAt'  // Default, but included for clarity
 });
 
-export default Permission;
+export default Currency;

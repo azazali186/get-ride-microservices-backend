@@ -1,32 +1,31 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/sequelize.mjs';
+import sequelize from '../config/sequelize.mjs'; // Assuming you have a Sequelize config in a similar location
 import { v4 as uuidv4 } from 'uuid';
 
-class Permission extends Model {}
+class States extends Model {}
 
-Permission.init({
+States.init({
   id: {
     type: DataTypes.STRING,
     primaryKey: true,
     defaultValue: () => uuidv4().replace(/-/g, '')
   },
-  path: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   name: {
     type: DataTypes.STRING,
     allowNull: false
   },
-  guard: {
+  code: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: 'web'
+    unique: true
   },
-  service: {
+  countryId: {
     type: DataTypes.STRING,
-    allowNull: false,
-    defaultValue: 'auth-service'
+    allowNull: false
+  },
+  status: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   },
   createdAt: {
     allowNull: false,
@@ -38,11 +37,11 @@ Permission.init({
   }
 }, {
   sequelize,
-  modelName: 'Permission',
-  tableName: 'permissions',
+  modelName: 'States',
+  tableName: 'states',
   timestamps: true,
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  createdAt: 'createdAt', // Default, but included for clarity
+  updatedAt: 'updatedAt'  // Default, but included for clarity
 });
 
-export default Permission;
+export default States;

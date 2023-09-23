@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken"
-import Role from '../models/roles.mjs'
 import { getMethodName } from '../utils/index.mjs'
+import { requestAuthentication } from '../rabbitMq/requestAuthentication.mjs'
 
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization
@@ -21,20 +21,20 @@ export const verifyTokenAndAuthorization = (req, res, next) => {
     let granted = false;
 
     if(req.user.role != 'admin' || req.user.id != req.params.id ){
-      let role = await Role.findOne({
-        name: req.user.role
-      })
-      let permissions = role?.permissions
   
       let name = (getMethodName(req.method) + (req.baseUrl).split(':')[0].replaceAll('/', "-")).toLowerCase();
       if (name.endsWith('-')) {
         name = name.slice(0, -1);
       }
-      permissions.map((p)=>{
-        if(name == p.name){
-          granted = true
-        }
-      })
+
+      const reqData = {
+        userId: req.userId,
+        route: name,
+        token: req.headers.authorization.split(" ")[1]
+      }
+
+      granted = requestAuthentication(reqData)
+
     }
 
     if (req.user.id === req.params.id || req.user.role == 'admin' || granted) {

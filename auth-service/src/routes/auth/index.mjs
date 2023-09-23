@@ -12,7 +12,9 @@ import jwt from 'jsonwebtoken';
 authRoutes.post('/register', async (req, res) => {
     try {
         let users = await User.findOne({
-            email: req.body.email.toLowerCase()
+            where: {
+                email: req.body.email.toLowerCase()
+            }
         })
         if (users) {
             res.status(409).json({
@@ -21,12 +23,14 @@ authRoutes.post('/register', async (req, res) => {
             return false
         }
         let role = await Role.findOne({
-            "name": req.body.role.toLowerCase(),
+            where: {
+                "name": req.body.role.toLowerCase(),
+            }
         })
         const newUser = new User({
             email: req.body.email.toLowerCase(),
             password: CryptoJS.AES.encrypt(req.body.password, process.env.PASS_SECRET).toString(),
-            role: role._id,
+            roleId: role.id,
         })
         const createdUser = await newUser.save()
         res.status(201).json(createdUser)
@@ -38,22 +42,40 @@ authRoutes.post('/register', async (req, res) => {
 
 authRoutes.post('/login', async (req, res) => {
     try {
-        const users = await User.findOne({
-            email: req.body.email.toLowerCase()
-        })
 
-        //console.log(users)
+        let users = await User.findOne({
+            where: { email: req.body.email.toLowerCase() },
+            include: [
+              {
+                model: Role,
+                attributes: ['id', 'name', 'isActive'],
+                include: [
+                  {
+                    model: Permissions,
+                    attributes: ['id', 'path', 'name', 'service'],
+                    through: { attributes: [] }, // This will exclude all attributes from the join table
+                  },
+                ],
+              },
+            ],
+          });
+          
+        users = users.dataValues
 
+        console.log("roleData Data ",users)
+        
         !users && res.status(401).json({ message: 'Wrong email......' })
-
         const OriginalPassword = CryptoJS.AES.decrypt(users.password, process.env.PASS_SECRET).toString(CryptoJS.enc.Utf8)
 
         OriginalPassword !== req.body.password && res.status(401).json({ message: 'Wrong Password and email combination' })
-        const { password, __v, ...others } = users._doc
-        const roleData = await Role.findById(users.role)
-        const permissionsData = await Permissions.find()
+        
+        const roleData = users.Role.dataValues;
+        
+        const permissionsData = await Permissions.findAll({
+            attributes: ['id', 'path', 'name', 'service']
+          });
         const payload = {
-            id: users._id,
+            id: users.id,
             email: users.email,
             role: roleData.name,
         }
@@ -62,7 +84,10 @@ authRoutes.post('/login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: "30m" },
         )
-        res.status(200).json({ user: { ...others, role: roleData }, roles: roleData, permissions: permissionsData, token: accessToken })
+        users.accessToken = accessToken;
+        const { password, __v, ...others } = users
+
+        res.status(200).json({ user: { ...others }, permissions: permissionsData, token: accessToken })
     } catch (err) {
         res.status(500).json(err)
     }

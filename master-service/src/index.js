@@ -5,10 +5,6 @@ import express from 'express';
 import cors from 'cors';
 import expressListRoutes from 'express-list-routes';
 
-import User from './models/user.mjs';
-import Role from './models/roles.mjs';
-import Permission from './models/permissions.mjs';
-import { rabbitMQListener } from './rabbitMq/index.mjs'
 const app = express();
 
 import { inserData } from './utils/index.mjs';
@@ -20,21 +16,15 @@ app.use(express.urlencoded({ extended: true }));
 import sequelize from "./config/sequelize.mjs"
 sequelize.sync();
 
-rabbitMQListener();
+Country.hasMany(States, { foreignKey: 'countryId' });
+States.belongsTo(Country, { foreignKey: 'countryId' });
 
-User.belongsTo(Role, { foreignKey: 'roleId' });
-
-Role.hasMany(User, { foreignKey: 'roleId' });
-
-Role.belongsToMany(Permission, { through: 'rolePermissions' });
-
-Permission.belongsToMany(Role, { through: 'rolePermissions' });
-
-import usersRoutes from "./routes/users/index.mjs";
-import authRoutes from "./routes/auth/index.mjs";
-
-import roleRoutes from "./routes/roles/index.mjs"
-import permissionRoutes from "./routes/permissions/index.mjs"
+import languagesRoutes from "./routes/languages/index.mjs"
+import countriesRoutes from "./routes/countries/index.mjs"
+import statesRoutes from "./routes/states/index.mjs"
+import currenciesRoutes from "./routes/currencies/index.mjs"
+import Country from './models/country.mjs';
+import States from './models/states.mjs';
 
 var whitelist = ["http://localhost:8000", "http://localhost:8080"];
 const corsOptions = {
@@ -51,10 +41,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use("/api/users", usersRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/roles", roleRoutes);
-app.use("/api/permissions", permissionRoutes);
+app.use("/api/languages", languagesRoutes);
+app.use("/api/countries", countriesRoutes);
+app.use("/api/states", statesRoutes);
+app.use("/api/currencies", currenciesRoutes);
 
 inserData(expressListRoutes, app);
 

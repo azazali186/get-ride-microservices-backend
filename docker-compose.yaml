@@ -16,10 +16,24 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:5100"
+      - "3100:5100"
     environment:
       DATABASE_URL: postgres://janny:Aj189628@@master-db-service:5556/auth-service
       PORT: 5100
+      JWT_SECRET: Aj189628@
+      PASS_SECRET: Aj189628@
+    depends_on:
+      - master-db-service
+
+  master-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3110:5110"
+    environment:
+      DATABASE_URL: postgres://janny:Aj189628@@master-db-service:5556/master-service
+      PORT: 5110
       JWT_SECRET: Aj189628@
       PASS_SECRET: Aj189628@
     depends_on:

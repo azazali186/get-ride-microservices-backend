@@ -24,7 +24,7 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    role: {
+    roleId: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
