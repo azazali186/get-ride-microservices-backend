@@ -1,0 +1,26 @@
+{
+  "name": "base-project-express-mongo",
+  "version": "1.0.0",
+  "description": "This is the base project setup for express and mongo",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --legacy-watch src/index.js"
+  },
+  "author": "Ali Azaz M",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "latest",
+    "crypto-js": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "express-list-routes": "latest",
+    "jsonwebtoken": "latest",
+    "nodemon": "latest",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.33.0",
+    "uuid": "latest"
+  }
+}
