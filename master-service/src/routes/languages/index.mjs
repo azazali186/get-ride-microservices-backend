@@ -3,12 +3,16 @@ import {
 } from "../../middleware/verifyToken.mjs";
 import Language from "../../models/language.mjs";
 
+
 import express from 'express';
 const languagesRoutes = express.Router()
 
 // Update Language
 languagesRoutes.patch("/:id", verifyTokenAndAuthorization, async (req, res) => {
     try {
+        if(req.body.code){
+            req.body.code = req.body.code.toUpperCase()
+        }
         const updatedLanguage = await Language.update(
             req.body,
             {
@@ -85,12 +89,20 @@ languagesRoutes.get("/", verifyTokenAndAuthorization, async (req, res) => {
 // Create Language
 languagesRoutes.post('/', verifyTokenAndAuthorization, async (req, res) => {
     try {
-        const existingLanguage = await Language.findOne({
+        let existingLanguage = await Language.findOne({
             where: { code: req.body.code.toUpperCase() }
         });
 
         if (existingLanguage) {
             return res.status(409).json({ error: "Language Code Already Exists." });
+        }
+
+        existingLanguage = await Language.findOne({
+            where: { name: req.body.name }
+        });
+
+        if (existingLanguage) {
+            return res.status(409).json({ error: "Language Name Already Exists." });
         }
 
         const newLanguage = await Language.create({

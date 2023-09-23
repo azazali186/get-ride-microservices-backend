@@ -86,17 +86,20 @@ countriesRoutes.get("/", verifyTokenAndAuthorization, async (req, res) => {
 // Create Country
 countriesRoutes.post('/', verifyTokenAndAuthorization, async (req, res) => {
     try {
-        const existingCountry = await Country.findOne({
-            where: {
-                [Op.or]: [
-                    { code: req.body.code.toUpperCase() },
-                    { dial: req.body.dialCode }
-                ]
-            }
+        let existingCountry = await Country.findOne({
+            where: {code: req.body.code.toUpperCase() }
         });
 
         if (existingCountry) {
-            return res.status(409).json({ error: "Country Code or Dial Code Already Exists." });
+            return res.status(409).json({ error: "Country Code Already Exists." });
+        }
+
+        existingCountry = await Country.findOne({
+            where: {dial: req.body.dialCode.toUpperCase() }
+        });
+
+        if (existingCountry) {
+            return res.status(409).json({ error: "Country Dial Code Already Exists." });
         }
 
         const newCountry = await Country.create({
