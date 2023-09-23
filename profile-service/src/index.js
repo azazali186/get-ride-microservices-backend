@@ -16,15 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 import sequelize from "./config/sequelize.mjs"
 sequelize.sync();
 
-import languagesRoutes from "./routes/languages/index.mjs"
-import countriesRoutes from "./routes/countries/index.mjs"
-import statesRoutes from "./routes/states/index.mjs"
-import currenciesRoutes from "./routes/currencies/index.mjs"
-import Country from './models/country.mjs';
-import States from './models/states.mjs';
-
-Country.hasMany(States, { foreignKey: 'countryId' });
-States.belongsTo(Country, { foreignKey: 'countryId' });
+import profileRoutes from "./routes/profile/index.mjs"
 
 var whitelist = ["http://localhost:8000", "http://localhost:8080"];
 const corsOptions = {
@@ -41,16 +33,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use("/api/languages", languagesRoutes);
-app.use("/api/countries", countriesRoutes);
-app.use("/api/states", statesRoutes);
-app.use("/api/currencies", currenciesRoutes);
+app.use("/api/profile", profileRoutes);
 
 inserData(expressListRoutes, app);
 
-app.listen(process.env.PORT || 5110, function () {
+app.listen(process.env.PORT || 5120, function () {
   console.log(
     "CORS-enabled web server listening on port ",
-    process.env.PORT || 5110
+    process.env.PORT || 5120
   );
 });

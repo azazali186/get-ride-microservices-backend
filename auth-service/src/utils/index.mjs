@@ -43,6 +43,10 @@ export async function getRoleData() {
     if (!customerRole) {
       await Role.create({ name: "customer" });
     }
+    let driverRole = await Role.findOne({ where: { name: "driver" } });
+    if (!driverRole) {
+      await Role.create({ name: "driver" });
+    }
   } catch (error) {
     console.error("Error in getRoleData:", error);
   }
