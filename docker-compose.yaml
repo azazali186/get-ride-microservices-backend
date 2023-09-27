@@ -47,7 +47,7 @@ services:
       - "3120:5120"
     environment:
       DATABASE_URL: postgres://janny:Aj189628@@profile-db-service:5556/profile-service
-      PORT: 5110
+      PORT: 5120
       JWT_SECRET: Aj189628@
       PASS_SECRET: Aj189628@
     depends_on:

@@ -9,6 +9,10 @@ import User from './models/user.mjs';
 import Role from './models/roles.mjs';
 import Permission from './models/permissions.mjs';
 import { rabbitMQListener } from './rabbitMq/index.mjs'
+
+import { Eureka } from 'eureka-js-client'
+import eurekaConfig from './config/eureka.js'
+
 const app = express();
 
 import { inserData } from './utils/index.mjs';
@@ -16,6 +20,13 @@ import { inserData } from './utils/index.mjs';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Register with Eureka
+const eurekaClient = new Eureka(eurekaConfig);
+
+eurekaClient.start(error => {
+  console.log(error || 'Eureka registration complete');
+});
 
 import sequelize from "./config/sequelize.mjs"
 sequelize.sync();
@@ -49,16 +60,26 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use("/api/users", usersRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/roles", roleRoutes);
-app.use("/api/permissions", permissionRoutes);
+app.use("/api/auth-service/users", usersRoutes);
+app.use("/api/auth-service/auth", authRoutes);
+app.use("/api/auth-service/roles", roleRoutes);
+app.use("/api/auth-service/permissions", permissionRoutes);
 await inserData(expressListRoutes, app);
 
 rabbitMQListener();
+
+
 app.listen(process.env.PORT || 5100, function () {
   console.log(
     "CORS-enabled web server listening on port ",
     process.env.PORT || 5100
   );
+});
+
+// Handle exit and deregister from Eureka
+process.on('SIGINT', () => {
+  eurekaClient.stop(error => {
+    console.log(error || 'Deregistered from Eureka');
+    process.exit(error ? 1 : 0);
+  });
 });
