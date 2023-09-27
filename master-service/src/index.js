@@ -9,9 +9,17 @@ const app = express();
 
 import { inserData } from './utils/index.mjs';
 
+import { Eureka } from 'eureka-js-client'
+import eurekaConfig from './config/eureka.js'
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Register with Eureka
+const eurekaClient = new Eureka(eurekaConfig);
+
+eurekaClient.start(error => {
+  console.log(error || 'Eureka registration complete');
+});
 
 import sequelize from "./config/sequelize.mjs"
 sequelize.sync();
@@ -41,10 +49,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.use("/api/languages", languagesRoutes);
-app.use("/api/countries", countriesRoutes);
-app.use("/api/states", statesRoutes);
-app.use("/api/currencies", currenciesRoutes);
+app.use("/api/master-service/languages", languagesRoutes);
+app.use("/api/master-service/countries", countriesRoutes);
+app.use("/api/master-service/states", statesRoutes);
+app.use("/api/master-service/currencies", currenciesRoutes);
 
 inserData(expressListRoutes, app);
 
@@ -53,4 +61,12 @@ app.listen(process.env.PORT || 5110, function () {
     "CORS-enabled web server listening on port ",
     process.env.PORT || 5110
   );
+});
+
+// Handle exit and deregister from Eureka
+process.on('SIGINT', () => {
+  eurekaClient.stop(error => {
+    console.log(error || 'Deregistered from Eureka');
+    process.exit(error ? 1 : 0);
+  });
 });

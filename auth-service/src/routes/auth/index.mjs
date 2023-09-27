@@ -61,8 +61,6 @@ authRoutes.post('/login', async (req, res) => {
           });
           
         users = users.dataValues
-
-        console.log("roleData Data ",users)
         
         !users && res.status(401).json({ message: 'Wrong email......' })
         const OriginalPassword = CryptoJS.AES.decrypt(users.password, process.env.PASS_SECRET).toString(CryptoJS.enc.Utf8)
