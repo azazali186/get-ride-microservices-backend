@@ -16,7 +16,7 @@ export const sendPermissionsToAuthServer = async () => {
     exchange,
     routingKey,
     Buffer.from(
-      JSON.stringify({ permissions: permissions, service: "profile-service" })
+      JSON.stringify({ permissions: permissions, service: "image-service" })
     )
   );
 

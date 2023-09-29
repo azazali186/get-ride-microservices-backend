@@ -1,8 +1,0 @@
-CREATE TABLE permissions (
-    id UUID PRIMARY KEY,
-    path VARCHAR(255) NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    guard VARCHAR(255) DEFAULT 'web' NOT NULL,
-    createdAt TIMESTAMPTZ NOT NULL,
-    updatedAt TIMESTAMPTZ NOT NULL
-);

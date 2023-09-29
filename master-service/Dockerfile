@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Make port 5100 available to the world outside this container
-EXPOSE 5100
+EXPOSE 5110
 
 # Run the application when the container launches
 CMD ["npm", "start"]

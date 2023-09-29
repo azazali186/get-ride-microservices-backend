@@ -1,46 +1,51 @@
-import { DataTypes, Model } from 'sequelize';
-import sequelize from '../config/sequelize.mjs'; // Assuming you have a Sequelize config in a similar location
+import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
-class Profile extends Model {}
+const { Schema } = mongoose;
 
-Profile.init({
-  id: {
-    type: DataTypes.STRING,
-    primaryKey: true,
-    defaultValue: () => uuidv4().replace(/-/g, '')
+const profileSchema = new Schema({
+  _id: {
+    type: String,
+    default: () => uuidv4().replace(/-/g, '')
   },
-  first_name: {
-    type: DataTypes.STRING,
-    allowNull: false,
+  images: {
+    type: String,
+    allowNull: true
   },
-  last_name: {
-    type: DataTypes.STRING,
-    allowNull: false,
+  name: {
+    type: String,
+    required: true
   },
-  isKyc: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
+  dob: {
+    type: Date,
+    required: false
   },
-  status: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
+  isVerify: {
+    type: Boolean,
+    default: false
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  userId: {
+    type: String,
+    required: true,
   },
   createdAt: {
-    allowNull: false,
-    type: DataTypes.DATE
+    type: Date,
+    default: Date.now
   },
   updatedAt: {
-    allowNull: false,
-    type: DataTypes.DATE
+    type: Date
   }
-}, {
-  sequelize,
-  modelName: 'Profile',
-  tableName: 'plofiles',
-  timestamps: true,
-  createdAt: 'createdAt', // Default, but included for clarity
-  updatedAt: 'updatedAt'  // Default, but included for clarity
 });
+
+profileSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+const Profile = mongoose.model('profiles', profileSchema);
 
 export default Profile;
