@@ -95,6 +95,16 @@ authRoutes.post("/login", async (req, res) => {
       expiresIn: "30m",
     });
     users.accessToken = accessToken;
+
+    const profileData = {
+      userId: users.id,
+    };
+
+    const profile = await sendProfileToProfileService(profileData);
+
+    users.profile = JSON.parse(profile).userProfile;
+
+
     const { password, __v, ...others } = users;
 
     res.status(200).json({

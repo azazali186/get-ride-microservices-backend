@@ -35,7 +35,6 @@ mongoose.connect(MONGODB_URI, {
 });
 
 import profilesRoutes from "./routes/profiles/index.mjs"
-import { listenForProfileRequest } from './rabbitMq/listenForProfileCreate.js';
 
 var whitelist = ["http://localhost:8000", "http://localhost:8080"];
 const corsOptions = {
@@ -51,7 +50,7 @@ const corsOptions = {
   optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-listenForProfileRequest()
+
 app.use("/api/catalogue-service/profiles", profilesRoutes);
 
 inserData(expressListRoutes, app);
